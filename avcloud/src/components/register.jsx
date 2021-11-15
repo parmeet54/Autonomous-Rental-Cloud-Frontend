@@ -72,6 +72,8 @@ export class Register extends React.Component {
                       console.log(response);
                  
               });
+                      // Change page
+                    this.props.history.push("/");
 
         };
 
@@ -105,13 +107,13 @@ export class Register extends React.Component {
                         <input type ="text" name="city" placeholder ="city" onChange={handleAddFormChange}/>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="cardnumber"></label>
+                        <label htmlFor="cardnumber">Card Number</label>
                         <input type ="text" name="cardnumber" placeholder ="cardnumber" onChange={handleAddFormChange}/>
                     </div>
 
                 </div>
                 <div className="footer">
-                <Link to="/"><button type="submit" className="btn">Register</button></Link>
+                    <button type="submit" className="btn">Register</button>
                 </div>
             </div>
 
