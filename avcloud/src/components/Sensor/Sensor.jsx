@@ -98,7 +98,7 @@ class Sensor extends React.Component {
             console.error(err);
           });
       }
-    }, 3000);
+    }, 1000);
   };
 
   componentDidMount() {
