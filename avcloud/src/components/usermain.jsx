@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
-
+import { Navbar } from "./index";
 export class UserMain extends Component {
   constructor(props) {
     super(props);
@@ -76,11 +76,13 @@ export class UserMain extends Component {
 
   render() {
     return (
-      <Container className="py-5">
-        <h1 className="mb-4">Book a Ride!</h1>
-
+      <Container>
+        <div > <Navbar /> </div>
+        
+        <h1 className="py-5">Book a Ride!</h1>
+        <hr className="solid"/>
         <Form
-          className="flex-column align-items-center"
+          className="flex-column align-items-center  py-5"
           onSubmit={this.handleOnSubmit}
         >
           <Row className="mb-3">
@@ -127,14 +129,7 @@ export class UserMain extends Component {
           </Button>
         </Form>
 
-        <div className="mt-4">
-          <Link to="/" className="me-2">
-            logout
-          </Link>
-          <Link to="/ridehistory" className="ms-2">
-            ride history
-          </Link>
-        </div>
+
       </Container>
     );
   }

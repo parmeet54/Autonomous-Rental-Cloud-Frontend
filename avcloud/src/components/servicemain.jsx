@@ -2,7 +2,7 @@ import React from "react";
 
 import udata from "./dummydata.json"
 import cdata from "./cardummydata.json"
-
+import { Container, Form, Button, Row, Col, Table } from "react-bootstrap";
 import axios from "axios";
 
 import {
@@ -196,11 +196,12 @@ export class ServiceMain extends React.Component {
         }
 
 
-        return <div className="" ref={this.props.containerRef}>
-            <h1 className="header">Service</h1>
+        return <div className="base-container container-s">
+            <h1 className="header mb-4 py-5">Service</h1>
             <h2 className="header">Users</h2>
             <div className="content">
-                <table>
+                <Table striped bordered hover variant="dark">
+                    <thead>
                     <tr>
                         <th>Name</th>
                         <th>Username</th>
@@ -211,6 +212,7 @@ export class ServiceMain extends React.Component {
                         <th>Email</th>
                         <th>Action</th>
                     </tr>
+                    </thead>
                 <tbody>
                     {this.state.users.map((user)=>(
                         <tr>
@@ -221,12 +223,15 @@ export class ServiceMain extends React.Component {
                             <td>{user.city}</td>
                             <td>{user.credit_card}</td>
                             <td>{user.email}</td>
-                            <td><button type ="button" onClick ={()=>handleDelete(user.username)}>Delete</button></td>
+                            <td><button type ="button" className="btn2" onClick ={()=>handleDelete(user.username)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+</svg></button></td>
                         </tr>
                     ))}
 
                 </tbody>
-                </table>
+                </Table>
 
                 <h3>Add User</h3>
                 <form onSubmit={handleAddFormSubmit}>
@@ -270,7 +275,8 @@ export class ServiceMain extends React.Component {
 
                 <h2 className="header">Autonomous Vehicles</h2>
                 <div className="content">
-                <table>
+                <Table striped bordered hover variant="dark">
+                    <thead>
                     <tr>
                         <th>Car ID</th>
                         <th>Status</th>
@@ -278,18 +284,22 @@ export class ServiceMain extends React.Component {
                         <th>Action</th>
 
                     </tr>
+                    </thead>
                 <tbody>
                     {this.state.cars.map((car)=>(
                         <tr>
                             <td>{car.car_id}</td>
                             <td>{car.status}</td>
                             <td>{car.car_type}</td>
-                            <td><button type ="button" onClick ={()=>handleDelete2(car.car_id)}>Delete</button></td>
+                            <td><button type ="button" className="btn2" onClick ={()=>handleDelete2(car.car_id)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+</svg></button></td>
                         </tr>
                     ))}
 
                 </tbody>
-                </table>
+                </Table>
 
                 <h3>Add Cars</h3>
                 

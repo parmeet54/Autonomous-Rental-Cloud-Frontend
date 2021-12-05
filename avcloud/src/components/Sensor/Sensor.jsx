@@ -116,6 +116,11 @@ class Sensor extends React.Component {
         <th key={row + Math.random()}>
           {row === "booking_id"
             ? "Booking ID"
+            : row === "_id" ? "ID"
+            : row === "other_actor" ? "Other Actor"
+            : row === "normal_impulse" ? "Normal Impulse"
+            : row === "crossed_lane_markings" ? "Crossed Lane Markings"
+            : row === "horizontal_angle" ? "Horizontal Angle"
             : row.charAt(0).toUpperCase() + row.slice(1)}
         </th>
       );
@@ -132,7 +137,7 @@ class Sensor extends React.Component {
       );
     });
     return (
-      <Table>
+      <Table responsive>
         <thead>
           <tr>{tableRows}</tr>
         </thead>

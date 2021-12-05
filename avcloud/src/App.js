@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./App.scss";
-import { Login, Register, UserMain, ServiceMain , RideHistory} from "./components/index";
+import { Login, Register, UserMain, ServiceMain , RideHistory, Profile} from "./components/index";
 import SensorViewCompleted from "./components/SensorViewCompleted/SensorViewCompleted";
 import SensorViewActive from "./components/SensorViewActive/SensorViewActive";
 
@@ -23,6 +23,7 @@ class App extends React.Component {
             <Route path="/usermain" component={UserMain}></Route>
             <Route path="/servicemain" component={ServiceMain}></Route>
             <Route path="/ridehistory" component={RideHistory}></Route>
+            <Route path="/profile" component={Profile}></Route>
             <Route
               exact
               path="/sensorviewcompleted/:booking_id"

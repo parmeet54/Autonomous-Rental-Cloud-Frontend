@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Tabs, Tab } from "react-bootstrap";
+import { Navbar } from "../navbar";
 import Sensor from "../Sensor/Sensor";
 
 const SensorViewActive = props => {
@@ -17,7 +18,8 @@ const SensorViewActive = props => {
   }, [props]);
   return (
     <div>
-      <Container fluid>
+      <Container fluid="md">
+        <Navbar isSensorView={true} />
         <h3> Booking ID: {bookingId} </h3>
         <hr></hr>
         <h6> Active Ride Sensor Information </h6>

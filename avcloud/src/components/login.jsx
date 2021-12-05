@@ -55,8 +55,8 @@ export class Login extends React.Component {
             });
 
         }
-        return <div className="base-container" ref={this.props.containerRef}>
-            <h1 className="header">Login</h1>
+        return <div className="base-container container" ref={this.props.containerRef}>
+            <h1 className="header mb-4 py-5">Login</h1>
             <div className="content">
                 <div className="form">
                     <div className="form-group">

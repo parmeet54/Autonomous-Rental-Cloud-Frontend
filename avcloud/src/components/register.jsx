@@ -77,8 +77,8 @@ export class Register extends React.Component {
 
         };
 
-        return <div className="base-container" >
-            <h1 className="header">Register</h1>
+        return <div className="base-container container" >
+            <h1 className="header mb-4 py-5">Register</h1>
             <form onSubmit={handleAddFormSubmit}>
             <div className="content">
                 <div className="form">
