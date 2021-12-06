@@ -18,7 +18,6 @@ export class UserMain extends Component {
       car_id: 0,
       startingLocation: "",
       destinationLocation: "",
-
       mapCenter: {
         lat: 49.2827291,
         lng: -123.1207375
@@ -28,6 +27,7 @@ export class UserMain extends Component {
         lng: -123.1207375
       },
     };
+
   }
 
   componentDidMount() {
@@ -50,10 +50,18 @@ export class UserMain extends Component {
   handleOnSubmit = (e) => {
     // Don't reload page
     e.preventDefault();
+    
 
     // Create new booking in database
     // TODO: booking_id
     const booking_id = Math.floor(Math.random() * 9999);
+    var latitude1 = this.state.mapCenter.lat;
+    var longitude1 = this.state.mapCenter.lng;
+    var latitude2 = this.state.mapCenter2.lat;
+    var longitude2 = this.state.mapCenter2.lng;
+    
+    var distance = window.google.maps.geometry.spherical.computeDistanceBetween(new window.google.maps.LatLng(latitude1, longitude1), new window.google.maps.LatLng(latitude2, longitude2));
+
     axios
       .post("bookings", {
         booking_id: booking_id,
@@ -62,7 +70,7 @@ export class UserMain extends Component {
         curr_location: this.state.startingLocation,
         destination: this.state.destinationLocation,
         trip_status: "active",
-        cost: Math.floor(Math.random() * 20 + 10),
+        cost: Math.round(distance)/1000,
       })
       .then((response) => {
         // Set car status to active
@@ -94,6 +102,7 @@ export class UserMain extends Component {
   handleChange = startingLocation => {
     this.setState({ startingLocation });
     console.log(this.state.startingLocation)
+
   };
  
   handleSelect = startingLocation => {
@@ -106,12 +115,22 @@ export class UserMain extends Component {
 
         // update center state
         this.setState({ mapCenter: latLng });
+        var latitude1 = this.state.mapCenter.lat;
+        var longitude1 = this.state.mapCenter.lng;
+        var latitude2 = this.state.mapCenter2.lat;
+        var longitude2 = this.state.mapCenter2.lng;
+    
+        var distance = window.google.maps.geometry.spherical.computeDistanceBetween(new window.google.maps.LatLng(latitude1, longitude1), new window.google.maps.LatLng(latitude2, longitude2));  
+        console.log(Math.round(distance)); 
+        
       })
       .catch(error => console.error('Error', error));
+      
   };
 
   handleChange2 = destinationLocation => {
     this.setState({ destinationLocation });
+    console.log(this.state.destinationLocation)
   };
  
   handleSelect2 = destinationLocation => {
@@ -122,7 +141,14 @@ export class UserMain extends Component {
         console.log('Success', latLng);
 
         // update center state
-        this.setState({ mapCenter: latLng });
+        this.setState({ mapCenter2: latLng });
+        var latitude1 = this.state.mapCenter.lat;
+        var longitude1 = this.state.mapCenter.lng;
+        var latitude2 = this.state.mapCenter2.lat;
+        var longitude2 = this.state.mapCenter2.lng;
+    
+        var distance = window.google.maps.geometry.spherical.computeDistanceBetween(new window.google.maps.LatLng(latitude1, longitude1), new window.google.maps.LatLng(latitude2, longitude2));  
+        console.log(Math.round(distance));
       })
       .catch(error => console.error('Error', error));
   };
@@ -258,7 +284,7 @@ export class UserMain extends Component {
         </Col>
         <Col>
         
-        <MapContainer start={this.state.startingLocation} end={this.state.destinationLocation} marker1={this.state.mapCenter} marker2={this.state.mapCenter}/>  
+        <MapContainer start={this.state.startingLocation} end={this.state.destinationLocation} marker1={this.state.mapCenter} marker2={this.state.mapCenter2}/>  
         </Col>
         </Row>
       </Container>

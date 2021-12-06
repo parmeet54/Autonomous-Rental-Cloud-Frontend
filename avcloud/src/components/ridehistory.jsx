@@ -36,7 +36,8 @@ export class RideHistory extends React.Component {
                 bookings: response.data
               });
               const SumValue = this.state.bookings && this.state.bookings.reduce((a, v) => a + v.cost, 0)
-              const total = "$"+SumValue
+              var rounded = SumValue.toFixed(2);
+              const total = "$"+rounded;
               console.log("SumValue:")
             this.setState({
                 sum: total,

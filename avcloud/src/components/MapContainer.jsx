@@ -10,7 +10,7 @@ export class MapContainer extends Component {
     super(props);
     this.state = {
       // for google map places autocomplete
-      address: this.props.start,
+      address: '',
       address2: '',
 
       showingInfoWindow: false,
@@ -20,16 +20,21 @@ export class MapContainer extends Component {
       mapCenter: this.props.marker1,
       mapCenter2: this.props.marker2,
 
-      activeMarker: [],
+      activeMarkers: [],
     };
     console.log(this.state.address)
     console.log(this.state.mapCenter)
+    
   }
   componentWillReceiveProps(nextProps) {
     // This will erase any local state updates!
     // Do not do this.
-    this.setState({ address: nextProps.start });
+    this.setState({ mapCenter2: nextProps.marker2 });
     this.setState({ mapCenter: nextProps.marker1 });
+
+    this.state.activeMarkers = [
+
+    ];
     console.log(this.props.start)
   };
 
@@ -54,6 +59,8 @@ export class MapContainer extends Component {
       })
       .catch(error => console.error('Error', error));
   };
+
+  
  
   render() {
     return (
@@ -71,20 +78,25 @@ export class MapContainer extends Component {
             lng: this.state.mapCenter.lng
           }}
           center={{
-            lat: this.state.mapCenter.lat,
-            lng: this.state.mapCenter.lng
+            lat: this.state.mapCenter2.lat,
+            lng: this.state.mapCenter2.lng
           }}
         >
+
           <Marker 
             position={{
-              lat: this.state.mapCenter.lat,
-              lng: this.state.mapCenter.lng
-            }} />
+                lat: this.state.mapCenter.lat,
+                lng: this.state.mapCenter.lng,
+              }} />
           <Marker 
             position={{
-              lat: this.state.mapCenter2.lat,
-              lng: this.state.mapCenter2.lng
-            }} />
+                lat: this.state.mapCenter2.lat,
+                lng: this.state.mapCenter2.lng,
+              }} />
+          
+            
+
+            
         </Map>
       </div>
     )
