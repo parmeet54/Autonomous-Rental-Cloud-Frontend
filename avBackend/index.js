@@ -71,20 +71,23 @@ app.post("/login", async function(req, res){
   db.query(
     "SELECT * FROM users WHERE username=?",
     [username],
-    (err, result) => {
+    async function (err, result){
       if (err) {
         res.send({ err: err });
       }
 
       if (result.length > 0) {
-        const comparison = bcrypt.compare(password, result[0].password)
+        const comparison = await bcrypt.compare(password, result[0].password)
 
         if(comparison){
           res.send(result);
-
+        }
+        else{
+          res.send({ message: "Wrong password" });
         }
 
-      } else {
+      } 
+      else {
         res.send({ message: "Wrong username/password combination" });
       }
     }
