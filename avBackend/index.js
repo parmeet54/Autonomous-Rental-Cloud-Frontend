@@ -8,6 +8,7 @@ require("dotenv").config();
 const router = express.Router();
 var db = require("./config/db.config");
 
+
 // Express setup
 const app = express();
 
@@ -53,30 +54,42 @@ app.use("/bookings", bookingRoutes);
 const sensorRoutes = require("./src/routes/sensors.route");
 app.use("/api/sensors", sensorRoutes);
 
+
+// Encryption
+const bcrypt = require("bcrypt");
+const salt = 10;
+
 // User Login
 /**
  * POST /login/
  */
-app.post("/login", (req, res) => {
+app.post("/login", async function(req, res){
   const username = req.body.username;
   const password = req.body.password;
+  const encrypt = await bcrypt.hash(password, salt)
 
   db.query(
-    "SELECT * FROM users WHERE username=? AND password=?",
-    [username, password],
+    "SELECT * FROM users WHERE username=?",
+    [username],
     (err, result) => {
       if (err) {
         res.send({ err: err });
       }
 
       if (result.length > 0) {
-        res.send(result);
+        const comparison = bcrypt.compare(password, result[0].password)
+
+        if(comparison){
+          res.send(result);
+
+        }
+
       } else {
         res.send({ message: "Wrong username/password combination" });
       }
     }
   );
-  console.log(username, password);
+  console.log(username, password, encrypt);
 });
 
 

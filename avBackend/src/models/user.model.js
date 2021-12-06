@@ -1,3 +1,6 @@
+const bcrypt = require("bcrypt");
+const salt = 10;
+
 var db = require('../../config/db.config');
 
 var User = function(user){
@@ -41,7 +44,8 @@ User.getUser = (username, result) => {
 
 
 // create new user
-User.createUser = (userReqData, result) => {
+User.createUser = async function (userReqData, result) {
+    userReqData.password = await bcrypt.hash(userReqData.password, salt);
     db.query('INSERT INTO users SET ?', userReqData, (err, res) => {
         if(err){
             console.log('Error while creating user', err);
@@ -55,9 +59,10 @@ User.createUser = (userReqData, result) => {
 
 
 // update user
-User.updateUser = (username, userReqData, result) => {
+User.updateUser = async function (username, userReqData, result) {
+    userReqData.password = await bcrypt.hash(userReqData.password, salt);
     db.query('UPDATE users SET password = ?, name = ?, email = ?, address = ?, city = ?, credit_card = ? WHERE username=?', 
-    [userReqData.password , userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, username], 
+    [userReqData.password, userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, username], 
     (err, res) => {
         if(err){
             console.log('Error while updating user', err);
