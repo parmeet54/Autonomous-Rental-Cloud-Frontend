@@ -32,12 +32,24 @@ export class Profile extends React.Component {
         axios.get('users/'+ localStorage.getItem('token')).then((response) => {
                
             console.log(response.data);
-
+            
             this.setState({
                 users: response.data
               });
               console.log("here")
               console.log(localStorage.getItem('token'));  
+            this.setState({
+                adduData: {
+                    name: response.data[0].name,
+                    username: response.data[0].username,
+                    password: response.data[0].password,
+                    address: response.data[0].address,
+                    city: response.data[0].city,
+                    cardnumber:response.data[0].credit_card,
+                    email: response.data[0].email
+                } ,
+            })
+           
         });
         
 
@@ -74,9 +86,8 @@ export class Profile extends React.Component {
             };
             
 
-              axios.post('users', {
+              axios.put('users/'+localStorage.getItem('token'), {
                   
-                username: this.state.adduData.username,
                 name: this.state.adduData.name,
                 password: this.state.adduData.password,
                 address: this.state.adduData.address,
@@ -88,6 +99,8 @@ export class Profile extends React.Component {
                  
                   
                       console.log(response);
+
+                      window.location.reload();
                  
               });
 
@@ -128,49 +141,49 @@ export class Profile extends React.Component {
 </svg></center>
                            
                             <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Username </Form.Label>
+                                <Form.Label>Username </Form.Label>
                                 
-                                <Form.Control type ="text" name="username" Value={user.username} readOnly/>
+                                <Form.Control type ="text" name="username" Value={user.username} onChange={handleAddFormChange} readOnly/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >Password </Form.Label>
                                 
-                                <Form.Control type ="password" name="password" Value={user.password}/>
+                                <Form.Control type ="password" name="password"  onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >Full Name</Form.Label>
                                 
-                                <Form.Control type ="text" name="name" Value={user.name}/>
+                                <Form.Control type ="text" name="name" Value={user.name} onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >Email </Form.Label>
                                 
-                                <Form.Control type ="email" name="email" Value={user.email}/>
+                                <Form.Control type ="email" name="email" Value={user.email} onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >Address </Form.Label>
                                 
-                                <Form.Control type ="text" name="address" Value={user.address}/>
+                                <Form.Control type ="text" name="address" Value={user.address} onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >City </Form.Label>
                                 
-                                <Form.Control type ="text" name="city" Value={user.city}/>
+                                <Form.Control type ="text" name="city" Value={user.city} onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
                             <Form.Group as={Row} className="mb-3" >
                                 <Form.Label >Card Number</Form.Label>
                                 
-                                <Form.Control type ="text" name="city" Value={user.credit_card}/>
+                                <Form.Control type ="text" name="cardnumber" Value={user.credit_card} onChange={handleAddFormChange}/>
                                 
                             </Form.Group>
     
-                            <button type ="button">Edit Profile</button>
+                            <Button className="mt-3" variant ="primary" type ="submit">Edit Profile</Button>
                         </div>
                     ))}
                         
@@ -179,14 +192,14 @@ export class Profile extends React.Component {
                     
 
                 
-                <div className="footer py-5">
+                <div className="footer py-4">
                     <button type="submit" className="btn2" onClick ={()=>handleDelete(localStorage.getItem('token'))}>Delete Account</button>
                 </div>
                 <br></br>
             </div>
             
             </Form>
-            <Link to="/"> Log out </Link>
+            
             </div>
         </div>
         

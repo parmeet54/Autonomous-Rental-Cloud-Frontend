@@ -63,6 +63,7 @@
             cursor: pointer;
             &:hover {
               background-color: #2386c8;
+              
             }
             &:focus {
               outline: none;
@@ -205,9 +206,9 @@ table {
   border-radius: 4px;
   position: relative;
   z-index: 99;
-  width: 50%;
+  width: 65%;
   height: 100%;
-  z-index: 99;
+ 
   padding: 17px 10px;
   //transition: transform 200ms ease-in-out;
 }
@@ -223,7 +224,7 @@ table {
   z-index: 99;
   width: 80%;
   height: 100%;
-  z-index: 99;
+ 
   padding: 17px 10px;
   //transition: transform 200ms ease-in-out;
 }
@@ -234,4 +235,7 @@ hr {
 
 hr.solid {
   border-top: 3px solid #bbb;
+}
+.autocomplete-dropdown-container{
+  width: 205px;
 }

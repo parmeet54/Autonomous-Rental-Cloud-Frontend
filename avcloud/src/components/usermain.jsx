@@ -3,6 +3,13 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { Navbar } from "./index";
+import MapContainer from './MapContainer';
+import {Map, Marker, GoogleApiWrapper} from 'google-maps-react';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
+
 export class UserMain extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +18,15 @@ export class UserMain extends Component {
       car_id: 0,
       startingLocation: "",
       destinationLocation: "",
+
+      mapCenter: {
+        lat: 49.2827291,
+        lng: -123.1207375
+      },
+      mapCenter2: {
+        lat: 49.2827291,
+        lng: -123.1207375
+      },
     };
   }
 
@@ -74,6 +90,44 @@ export class UserMain extends Component {
       });
   };
 
+
+  handleChange = startingLocation => {
+    this.setState({ startingLocation });
+    console.log(this.state.startingLocation)
+  };
+ 
+  handleSelect = startingLocation => {
+    this.setState({ startingLocation });
+    console.log(this.state.startingLocation)
+    geocodeByAddress(startingLocation)
+      .then(results => getLatLng(results[0]))
+      .then(latLng => {
+        console.log('Success', latLng);
+
+        // update center state
+        this.setState({ mapCenter: latLng });
+      })
+      .catch(error => console.error('Error', error));
+  };
+
+  handleChange2 = destinationLocation => {
+    this.setState({ destinationLocation });
+  };
+ 
+  handleSelect2 = destinationLocation => {
+    this.setState({ destinationLocation });
+    geocodeByAddress(destinationLocation)
+      .then(results => getLatLng(results[0]))
+      .then(latLng => {
+        console.log('Success', latLng);
+
+        // update center state
+        this.setState({ mapCenter: latLng });
+      })
+      .catch(error => console.error('Error', error));
+  };
+
+
   render() {
     return (
       <Container>
@@ -81,39 +135,109 @@ export class UserMain extends Component {
         
         <h1 className="py-5">Book a Ride!</h1>
         <hr className="solid"/>
+        <Row>
+        <Col>
         <Form
-          className="flex-column align-items-center  py-5"
+          className="flex-column align-items-center py-5"
           onSubmit={this.handleOnSubmit}
         >
-          <Row className="mb-3">
+          
             <Col>
-              <Form.Group>
-                <Form.Label className="fw-bold">Starting location</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="1 Washington Sq"
-                  name="startingLocation"
-                  value={this.state.startingLocation}
-                  onChange={this.handleOnChange}
-                />
-              </Form.Group>
+            
+            <Form.Group className="pb-5">
+            <Form.Label className="fw-bold">Starting Location</Form.Label>
+            
+            <PlacesAutocomplete
+              name="startingLocation"
+              value={this.state.startingLocation}
+              
+              onChange={this.handleChange}
+              onSelect={this.handleSelect}
+            >
+              {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                <div>
+                  <Form.Control
+                    {...getInputProps({
+                      placeholder: '1 Washington Sq',
+                      className: 'location-search-input',
+                    })}            
+                  />
+                  <div className="autocomplete-dropdown-container">
+                    {loading && <div>Loading...</div>}
+                    {suggestions.map(suggestion => {
+                      const className = suggestion.active
+                        ? 'suggestion-item--active'
+                        : 'suggestion-item';
+                      // inline style for demonstration purpose
+                      const style = suggestion.active
+                        ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                        : { backgroundColor: '#ffffff', cursor: 'pointer' };
+                      return (
+                        <div
+                          {...getSuggestionItemProps(suggestion, {
+                            className,
+                            style,
+                          })}
+                        >
+                          <span>{suggestion.description}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </PlacesAutocomplete>
+            </Form.Group>
+
             </Col>
             <Col>
-              <Form.Group>
-                <Form.Label className="fw-bold">
-                  Destination location
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="200 E Santa Clara St"
-                  name="destinationLocation"
-                  value={this.state.destinationLocation}
-                  onChange={this.handleOnChange}
-                />
-              </Form.Group>
+            <Form.Group className="pb-5">
+            <Form.Label className="fw-bold">Destination Location</Form.Label>
+            
+            <PlacesAutocomplete
+              name="startingLocation"
+              value={this.state.destinationLocation}
+              
+              onChange={this.handleChange2}
+              onSelect={this.handleSelect2}
+            >
+              {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                <div>
+                  <Form.Control
+                    {...getInputProps({
+                      placeholder: '200 E Santa Clara st',
+                      className: 'location-search-input',
+                    })}            
+                  />
+                  <div className="autocomplete-dropdown-container">
+                    {loading && <div>Loading...</div>}
+                    {suggestions.map(suggestion => {
+                      const className = suggestion.active
+                        ? 'suggestion-item--active'
+                        : 'suggestion-item';
+                      // inline style for demonstration purpose
+                      const style = suggestion.active
+                        ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                        : { backgroundColor: '#ffffff', cursor: 'pointer' };
+                      return (
+                        <div
+                          {...getSuggestionItemProps(suggestion, {
+                            className,
+                            style,
+                          })}
+                        >
+                          <span>{suggestion.description}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </PlacesAutocomplete>
+            </Form.Group>
             </Col>
-          </Row>
-          <Form.Group className="mb-3">
+          
+          <Form.Group className="pb-5">
             <Form.Label className="fw-bold">Available vehicles</Form.Label>
             <Form.Select name="car_id" onChange={this.handleOnChange}>
               {this.state.cars.map((car) => (
@@ -124,12 +248,19 @@ export class UserMain extends Component {
               ))}
             </Form.Select>
           </Form.Group>
+          <br/>
           <Button variant="primary" type="submit">
             Book ride
           </Button>
         </Form>
 
 
+        </Col>
+        <Col>
+        
+        <MapContainer start={this.state.startingLocation} end={this.state.destinationLocation} marker1={this.state.mapCenter} marker2={this.state.mapCenter}/>  
+        </Col>
+        </Row>
       </Container>
     );
   }

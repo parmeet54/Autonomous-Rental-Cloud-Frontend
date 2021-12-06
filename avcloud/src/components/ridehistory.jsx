@@ -99,7 +99,7 @@ export class RideHistory extends React.Component {
                 
             </div>
             </div>
-            <br></br>
+           
             <div className="container"><h2>Total Cost Charged: {this.state.sum}</h2></div>
             <br></br>
             <div className="footer">
@@ -108,9 +108,9 @@ export class RideHistory extends React.Component {
             </div>
             
             <div className="pads">
-                <Link to="/usermain"><button type="button" className="btn">Back</button></Link>
+                
             </div>
-
+            
         </div>
         
     }
