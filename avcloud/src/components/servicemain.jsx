@@ -1,334 +1,396 @@
-import React from "react";
-
-import udata from "./dummydata.json"
-import cdata from "./cardummydata.json"
-import { Container, Form, Button, Row, Col, Table } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+import Table from "react-bootstrap/Table";
+import logo from "../images/logo.png";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie } from "react-chartjs-2";
 
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Link,
-    Outlet
-  } from "react-router-dom";
-  
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-export class ServiceMain extends React.Component {
+const getRandomColor = () => {
+  const r = getRandomValue();
+  const g = getRandomValue();
+  const b = getRandomValue();
+  return `rgba(${r}, ${g}, ${b}, 0.2)`;
+};
 
-    constructor(props){
-        super(props);
-        this.state ={
-            users: udata,
-            adduData: {
-                name: '',
-                username: '',
-                password: '',
-                address:'',
-                city:'',
-                cardnumber:'',
-                email:''
-            } ,
-            cars: cdata,
-            addcData: {
-                
-                car_id:'',
-                status:'',
-                car_type:''
-            }  
-        };
-        axios.get('users').then((response) => {
-               
-            console.log(response.data);
+const getRandomValue = () => {
+  const min = 0;
+  const max = 255;
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
-            this.setState({
-                users: response.data
-              });
-        });
-        axios.get('cars').then((response) => {
-               
-            console.log(response.data);
+const ServiceMain = ({ signOut }) => {
+  const [users, setUsers] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [cardnumber, setCardNumber] = useState("");
+  const [userMessage, setUserMessage] = useState("");
 
-            this.setState({
-                cars: response.data
-              });
-        });
-    }
-    
-    
-    render() {
-   
+  const [cars, setCars] = useState([]);
+  const [carId, setCarId] = useState("");
+  const [carStatus, setCarStatus] = useState("");
+  const [carType, setCarType] = useState("");
+  const [carMessage, setCarMessage] = useState("");
 
-        
-        const handleAddFormChange = (event) =>{
-            event.preventDefault();
+  const [numBookings, setNumBookings] = useState(0);
+  const [numActiveCars, setNumActiveCars] = useState(0);
+  const [numInactiveCars, setNumInactiveCars] = useState(0);
+  const [carStatusData, setCarStatusData] = useState(null);
+  const [carTypeData, setCarTypeData] = useState(null);
 
-            const fieldname = event.target.getAttribute('name');
-            const fieldvalue = event.target.value;
+  useEffect(() => {
+    axios.get("users").then((response) => {
+      setUsers(response.data);
+    });
+    axios.get("cars").then((response) => {
+      setCars(response.data);
+    });
+  }, []);
 
-            const newformdata = this.state.adduData;
-            newformdata[fieldname] = fieldvalue;
+  useEffect(() => {
+    axios.get("cars").then((response) => {
+      const cars = response.data;
+      const numActive = cars.filter((car) => car.status === "active").length;
+      const numInactive = cars.filter(
+        (car) => car.status === "inactive"
+      ).length;
+      setNumActiveCars(numActive);
+      setNumInactiveCars(numInactive);
+      setCarStatusData({
+        labels: ["Active", "Inactive"],
+        datasets: [
+          {
+            label: "Autonomous Vehicle Statuses",
+            data: [numActive, numInactive],
+            backgroundColor: ["rgba(0, 255, 0, 0.2)", "rgba(255, 0, 0, 0.2)"],
+            borderColor: ["rgba(0, 255, 0, 0.2)", "rgba(255, 0, 0, 0.2)"],
+            borderWidth: 1,
+          },
+        ],
+      });
 
-            this.state.adduData = {...this.state.adduData, ...newformdata};
-            
-
-        };
-
-        const handleAddFormSubmit = (event) => {
-            event.preventDefault();
-
-            const newUser = {
-                
-                username: this.state.adduData.username,
-                name: this.state.adduData.name,
-                password: this.state.adduData.password,
-                address: this.state.adduData.address,
-                city: this.state.adduData.city,
-                credit_card: this.state.adduData.cardnumber,
-                email: this.state.adduData.email
-            };
-            
-            this.setState({
-                users: [...this.state.users, newUser]
-              });
-              axios.post('users', {
-                  
-                username: this.state.adduData.username,
-                name: this.state.adduData.name,
-                password: this.state.adduData.password,
-                address: this.state.adduData.address,
-                city: this.state.adduData.city,
-                credit_card: this.state.adduData.cardnumber,
-                email: this.state.adduData.email
-                  
-              }).then((response) => {
-                 
-                  
-                      console.log(response);
-                 
-              });
-
-        };
-
-        const handleDelete =(userId) => {
-            const newUsers = [...this.state.users];
-
-            const index = this.state.users.findIndex((user)=> user.username ===userId);
-            newUsers.splice(index, 1);
-            
-            this.setState({
-                users: newUsers
-              });
-              
-              axios.delete('users/'+userId, {
-                  
-                userId
-
-              }
-              ).then((response) => {
- 
-                      console.log(response);
-                 
-              });
+      const typeCount = {};
+      for (const car of cars) {
+        const type = car.car_type;
+        if (type in typeCount) {
+          typeCount[type]++;
+        } else {
+          typeCount[type] = 1;
         }
+      }
+      const types = Object.keys(typeCount);
+      const counts = Object.values(typeCount);
+      const colors = types.map((_) => getRandomColor());
+      setCarTypeData({
+        labels: types,
+        datasets: [
+          {
+            label: "Autonomous Vehicle Types",
+            data: counts,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1,
+          },
+        ],
+      });
+    });
+    axios.get("bookings").then((response) => {
+      setNumBookings(response.data.length);
+    });
+  }, [users, cars]);
 
+  const handleAddUser = (e) => {
+    e.preventDefault();
+    const newUser = {
+      username: username,
+      email: email,
+      name: name,
+      password: password,
+      address: address,
+      city: city,
+      credit_card: cardnumber,
+    };
+    axios.post("users", newUser).then((response) => {
+      if (response.data.errno === 1062) {
+        setUserMessage("Username taken");
+      } else {
+        setUserMessage("");
+        setUsers([...users, newUser]);
+      }
+    });
+  };
 
-        const handleAddFormChange2 = (event) =>{
-            event.preventDefault();
+  const handleDeleteUser = (userId) => {
+    const usersCopy = [...users];
+    const index = usersCopy.findIndex((user) => user.username === userId);
+    usersCopy.splice(index, 1);
+    setUsers(usersCopy);
+    axios
+      .delete("users/" + userId, {
+        userId,
+      })
+      .then((response) => {});
+  };
 
-            const fieldname = event.target.getAttribute('name');
-            const fieldvalue = event.target.value;
+  const handleAddCar = (e) => {
+    e.preventDefault();
+    const newCar = {
+      car_id: carId,
+      status: carStatus,
+      car_type: carType,
+    };
+    axios.post("cars", newCar).then((response) => {
+      if (response.data.errno === 1062) {
+        setCarMessage("Car ID taken");
+      } else {
+        setCarMessage("");
+        setCars([...cars, newCar]);
+      }
+    });
+  };
 
-            const newformdata = this.state.addcData;
-            newformdata[fieldname] = fieldvalue;
+  const handleDeleteCar = (carId) => {
+    const carsCopy = [...cars];
+    const index = carsCopy.findIndex((car) => car.id === carId);
+    carsCopy.splice(index, 1);
+    setCars(carsCopy);
+    axios
+      .delete("cars/" + carId, {
+        carId,
+      })
+      .then((response) => {});
+  };
 
-            this.state.addcData = {...this.state.addcData, ...newformdata};
-            
+  return (
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col>
+          <div className="text-center">
+            <Image src={logo} className="logo" />
+            <div className="mb-5">
+              <h1 className="fw-bold">Admin Dashboard</h1>
+              <h5>Hello {localStorage.getItem("token")}</h5>
+              <Link to="/" onClick={signOut} className="navigation-link">
+                Sign Out
+              </Link>
+            </div>
+          </div>
+          <div className="mb-5">
+            <h3 className="fw-bold">Users</h3>
+            <Table responsive striped hover>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Username</th>
+                  <th>Address</th>
+                  <th>City</th>
+                  <th>Card Number</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.username}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.username}</td>
+                    <td>{user.address}</td>
+                    <td>{user.city}</td>
+                    <td>{user.credit_card}</td>
+                    <td>
+                      <Button
+                        variant="danger"
+                        onClick={() => handleDeleteUser(user.username)}
+                      >
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            <Form className="d-flex" onSubmit={handleAddUser}>
+              <Form.Control
+                required
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                pattern="^[a-zA-Z][a-zA-Z ,.'-]*$"
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Email address"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                pattern="^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+(?:\.[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Username"
+                name="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                pattern="^[ -~]{6,}$"
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Address"
+                name="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="City"
+                name="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Card Number"
+                name="cardnumber"
+                value={cardnumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                pattern="^\d{16}$"
+                maxLength="16"
+                className="me-1"
+              />
+              <Button type="submit">Add</Button>
+            </Form>
+            {userMessage !== "" && (
+              <Alert variant="danger" className="mt-3">
+                {userMessage}
+              </Alert>
+            )}
+          </div>
+          <div className="mb-5">
+            <h3 className="fw-bold">Autonomous Vehicles</h3>
+            <Table responsive striped hover>
+              <thead>
+                <tr>
+                  <th>Car ID</th>
+                  <th>Status</th>
+                  <th>Car Type</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {cars.map((car) => (
+                  <tr key={car.car_id}>
+                    <td>{car.car_id}</td>
+                    <td>{car.status}</td>
+                    <td>{car.car_type}</td>
+                    <td>
+                      <Button
+                        variant="danger"
+                        onClick={() => handleDeleteCar(car.car_id)}
+                      >
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            <Form className="d-flex" onSubmit={handleAddCar}>
+              <Form.Control
+                required
+                type="text"
+                placeholder="Car ID"
+                name="car_id"
+                value={carId}
+                onChange={(e) => setCarId(e.target.value)}
+                pattern="^\d+$"
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Status"
+                name="status"
+                value={carStatus}
+                onChange={(e) => setCarStatus(e.target.value)}
+                maxLength="254"
+                className="me-1"
+              />
+              <Form.Control
+                required
+                type="text"
+                placeholder="Car Type"
+                name="car_type"
+                value={carType}
+                onChange={(e) => setCarType(e.target.value)}
+                maxLength="254"
+                className="me-1"
+              />
+              <Button type="submit">Add</Button>
+            </Form>
+            {carMessage !== "" && (
+              <Alert variant="danger" className="mt-3">
+                {carMessage}
+              </Alert>
+            )}
+          </div>
+          <div className="mb-5">
+            <h3 className="fw-bold">Statistics</h3>
+            <h5>Total bookings: {numBookings}</h5>
+            <h5>Registered users: {users.length}</h5>
+            <h5>Registered autonomous vehicles: {cars.length}</h5>
+            <h5>Active autonomous vehicles: {numActiveCars}</h5>
+            <h5>Inactive autonomous vehicles: {numInactiveCars}</h5>
+            <div className="d-flex" style={{ width: 300, height: 300 }}>
+              {carStatusData && <Pie data={carStatusData} />}
+              {carTypeData && <Pie data={carTypeData} />}
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
 
-        };
-
-        const handleAddFormSubmit2 = (event) => {
-            event.preventDefault();
-            
-            const newCar = {
-                
-                car_id: this.state.addcData.car_id,
-                status: this.state.addcData.status,
-                car_type: this.state.addcData.car_type,
-            };
-            console.log(this.state.addcData.car_id);
-            
-            this.setState({
-                cars: [...this.state.cars, newCar]
-              });
-              axios.post('cars', {
-                  
-                car_id: this.state.addcData.car_id,
-                status: this.state.addcData.status,
-                car_type: this.state.addcData.car_type,
-                  
-              }).then((response) => {
-                 
-                  
-                      console.log(response);
-                 
-              });
-        };
-        const handleDelete2 =(carId) => {
-            const newCars = [...this.state.cars];
-
-            const index = this.state.cars.findIndex((car)=> car.id === carId);
-            newCars.splice(index, 1);
-            
-            this.setState({
-                cars: newCars
-              });
-              axios.delete('cars/'+carId, {
-                  
-                carId
-
-              }
-              ).then((response) => {
- 
-                      console.log(response);
-                 
-              });
-        }
-
-
-        return <div className="base-container container-s">
-            <h1 className="header mb-4 py-5">Service</h1>
-            <h2 className="header">Users</h2>
-            <div className="content">
-                <Table striped bordered hover variant="dark">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Address</th>
-                        <th>City</th>
-                        <th>Card Number</th>
-                        <th>Email</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                    {this.state.users.map((user)=>(
-                        <tr>
-                            <td>{user.name}</td>
-                            <td>{user.username}</td>
-                            <td>{user.password}</td>
-                            <td>{user.address}</td>
-                            <td>{user.city}</td>
-                            <td>{user.credit_card}</td>
-                            <td>{user.email}</td>
-                            <td><button type ="button" className="btn2" onClick ={()=>handleDelete(user.username)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-</svg></button></td>
-                        </tr>
-                    ))}
-
-                </tbody>
-                </Table>
-
-                <h3>Add User</h3>
-                <form onSubmit={handleAddFormSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name"></label>
-                        <input type ="text" name="name" placeholder ="fullname" onChange={handleAddFormChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="username"></label>
-                        <input type ="text" name="username" placeholder ="username" onChange={handleAddFormChange}/>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password"></label>
-                        <input type ="password" name="password" placeholder ="password" onChange={handleAddFormChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="address"></label>
-                        <input type ="text" name="address" placeholder ="address" onChange={handleAddFormChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="city"></label>
-                        <input type ="text" name="city" placeholder ="city" onChange={handleAddFormChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="cardnumber"></label>
-                        <input type ="text" name="cardnumber" placeholder ="cardnumber" onChange={handleAddFormChange}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="email"></label>
-                        <input type ="text" name="email" placeholder ="email" onChange={handleAddFormChange}/>
-                    </div>
-                        <button type="submit">Add</button>
-                </form>
-                </div>
-
-                <text>
-                <br />
-                <br />
-                </text>
-
-                <h2 className="header">Autonomous Vehicles</h2>
-                <div className="content">
-                <Table striped bordered hover variant="dark">
-                    <thead>
-                    <tr>
-                        <th>Car ID</th>
-                        <th>Status</th>
-                        <th>Car Type</th>
-                        <th>Action</th>
-
-                    </tr>
-                    </thead>
-                <tbody>
-                    {this.state.cars.map((car)=>(
-                        <tr>
-                            <td>{car.car_id}</td>
-                            <td>{car.status}</td>
-                            <td>{car.car_type}</td>
-                            <td><button type ="button" className="btn2" onClick ={()=>handleDelete2(car.car_id)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-</svg></button></td>
-                        </tr>
-                    ))}
-
-                </tbody>
-                </Table>
-
-                <h3>Add Cars</h3>
-                
-                <form className="center" onSubmit={handleAddFormSubmit2}>
-                   
-                    <div className="form-group">
-                        <label htmlFor="username"></label>
-                        <input type ="text" name="car_id" placeholder ="Car ID" onChange={handleAddFormChange2}/>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="status"></label>
-                        <input type ="text" name="status" placeholder ="status" onChange={handleAddFormChange2}/>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="Car Type"></label>
-                        <input type ="text" name="car_type" placeholder ="Car Type" onChange={handleAddFormChange2}/>
-                    </div>
- 
-                        <button type="submit">Add</button>
-                </form>
-                
-                </div>
- 
-                <div className="pads">
-                    <Link to="/"> logout </Link>
-                </div>
-
-        </div>
-        
-    }
-}
+export default ServiceMain;

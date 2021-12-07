@@ -1,207 +1,188 @@
-import React from "react";
-import udata from "./dummydata.json"
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Navbar } from "./index";
-import { Container, Form, Button, Row, Col, Table } from "react-bootstrap";
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Link,
-    Outlet
-  } from "react-router-dom";
-  
+import Navbar from "./navbar";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
-export class Profile extends React.Component {
+const Profile = ({ signOut }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [cardnumber, setCardNumber] = useState("");
+  const [message, setMessage] = useState("");
+  const [validated, setValidated] = useState(false);
 
-    constructor(props){
-        super(props);
-        this.state ={
-            users: udata,
-            adduData: {
-                name: '',
-                username: '',
-                password: '',
-                address:'',
-                city:'',
-                cardnumber:'',
-                email:''
-            } ,
-        };
+  useEffect(() => {
+    axios.get("users/" + localStorage.getItem("token")).then((response) => {
+      const user = response.data[0];
+      setName(user.name);
+      setEmail(user.email);
+      setUsername(user.username);
+      setAddress(user.address);
+      setCity(user.city);
+      setCardNumber(user.credit_card);
+    });
+  }, []);
 
-        axios.get('users/'+ localStorage.getItem('token')).then((response) => {
-               
-            console.log(response.data);
-            
-            this.setState({
-                users: response.data
-              });
-              console.log("here")
-              console.log(localStorage.getItem('token'));  
-            this.setState({
-                adduData: {
-                    name: response.data[0].name,
-                    username: response.data[0].username,
-                    password: response.data[0].password,
-                    address: response.data[0].address,
-                    city: response.data[0].city,
-                    cardnumber:response.data[0].credit_card,
-                    email: response.data[0].email
-                } ,
-            })
-           
-        });
-        
+  const handleUpdateUser = (e) => {
+    e.preventDefault();
 
+    if (e.currentTarget.checkValidity() === false) {
+      setValidated(true);
+      return;
     }
 
-       
-    render() {
+    setMessage("");
 
-        const handleAddFormChange = (event) =>{
-            event.preventDefault();
+    const updatedUser = {
+      name: name,
+      email: email,
+      username: username,
+      password: newPassword,
+      address: address,
+      city: city,
+      credit_card: cardnumber,
+    };
 
-            const fieldname = event.target.getAttribute('name');
-            const fieldvalue = event.target.value;
+    axios.put("users/" + username, updatedUser).then((response) => {
+      setMessage("Profile updated");
+    });
+  };
 
-            const newformdata = this.state.adduData;
-            newformdata[fieldname] = fieldvalue;
+  const handleDeleteUser = () => {
+    axios
+      .delete("users/" + username, {
+        username,
+      })
+      .then((response) => {
+        signOut();
+      });
+  };
 
-            this.state.adduData = {...this.state.adduData, ...newformdata};
-            
+  return (
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col>
+          <Navbar signOut={signOut} />
+          <h1 className="fw-bold mb-4">User Profile</h1>
+        </Col>
+        <Form
+          className="account-form"
+          onSubmit={handleUpdateUser}
+          noValidate
+          validated={validated}
+        >
+          {message !== "" && <Alert variant="success">{message}</Alert>}
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="John Doe"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              pattern="^[a-zA-Z][a-zA-Z ,.'-]*$"
+              maxLength="254"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="john.doe@gmail.com"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              pattern="^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+(?:\.[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
+              maxLength="254"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="john.doe"
+              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              maxLength="254"
+              disabled={true}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>New Password</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Leave blank to keep current password"
+              name="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              pattern="^[ -~]{6,}$"
+              maxLength="254"
+            />
+            <Form.Text muted>- Must be at least 6 characters long</Form.Text>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Address</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="123 Main Street"
+              name="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              maxLength="254"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>City</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="San Jose"
+              name="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              maxLength="254"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Card Number</Form.Label>
+            <Form.Control
+              required
+              type="text"
+              placeholder="0123456789012345"
+              name="cardnumber"
+              value={cardnumber}
+              onChange={(e) => setCardNumber(e.target.value)}
+              pattern="^\d{16}$"
+              maxLength="16"
+            />
+          </Form.Group>
+          <Button className="button-oval w-100" type="submit">
+            Update Profile
+          </Button>
+        </Form>
+        <Button
+          variant="danger"
+          className="button-oval mt-5 w-auto"
+          onClick={handleDeleteUser}
+        >
+          Delete Account
+        </Button>
+      </Row>
+    </Container>
+  );
+};
 
-        };
-        const handleAddFormSubmit = (event) => {
-            event.preventDefault();
-
-            const newUser = {
-                
-                username: this.state.adduData.username,
-                name: this.state.adduData.name,
-                password: this.state.adduData.password,
-                address: this.state.adduData.address,
-                city: this.state.adduData.city,
-                credit_card: this.state.adduData.cardnumber,
-                email: this.state.adduData.email
-            };
-            
-
-              axios.put('users/'+localStorage.getItem('token'), {
-                  
-                name: this.state.adduData.name,
-                password: this.state.adduData.password,
-                address: this.state.adduData.address,
-                city: this.state.adduData.city,
-                credit_card: this.state.adduData.cardnumber,
-                email: this.state.adduData.email
-                  
-              }).then((response) => {
-                 
-                  
-                      console.log(response);
-
-                      window.location.reload();
-                 
-              });
-
-
-        };
-        const handleDelete =(userId) => {
-
-              console.log(userId);
-              axios.delete('users/'+userId, {
-                  
-                userId
-
-              }
-              ).then((response) => {
- 
-                      console.log(response);
-                      //return to login
-                      this.props.history.push("/");
-                 
-              });
-        }
-
-
-        return <div className="container" >
-            <div > <Navbar /> </div>
-            <div className="base-container py-5" >
-            <h1 className="header ">User Profile</h1>
-            <hr className="solid"/>
-            <Form onSubmit={handleAddFormSubmit}>
-            <div className="content">
-                
-                    
-                    {this.state.users.map((user)=>(
-                        <div >
-                            <center className ="py-5"><svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-</svg></center>
-                           
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label>Username </Form.Label>
-                                
-                                <Form.Control type ="text" name="username" Value={user.username} onChange={handleAddFormChange} readOnly/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Password </Form.Label>
-                                
-                                <Form.Control type ="password" name="password"  onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Full Name</Form.Label>
-                                
-                                <Form.Control type ="text" name="name" Value={user.name} onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Email </Form.Label>
-                                
-                                <Form.Control type ="email" name="email" Value={user.email} onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Address </Form.Label>
-                                
-                                <Form.Control type ="text" name="address" Value={user.address} onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >City </Form.Label>
-                                
-                                <Form.Control type ="text" name="city" Value={user.city} onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                                <Form.Label >Card Number</Form.Label>
-                                
-                                <Form.Control type ="text" name="cardnumber" Value={user.credit_card} onChange={handleAddFormChange}/>
-                                
-                            </Form.Group>
-    
-                            <Button className="mt-3" variant ="primary" type ="submit">Edit Profile</Button>
-                        </div>
-                    ))}
-                        
-                        
-                   
-                    
-
-                
-                <div className="footer py-4">
-                    <button type="submit" className="btn2" onClick ={()=>handleDelete(localStorage.getItem('token'))}>Delete Account</button>
-                </div>
-                <br></br>
-            </div>
-            
-            </Form>
-            
-            </div>
-        </div>
-        
-    }
-}
+export default Profile;

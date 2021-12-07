@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Container, Tabs, Tab } from "react-bootstrap";
-import { Navbar } from "../navbar";
+import Navbar from "../navbar";
 import Sensor from "../Sensor/Sensor";
 
-const SensorViewActive = props => {
+const SensorViewActive = (props) => {
   const [bookingId, setBookingId] = useState(0);
   // save booking id as state value when component renders
   useEffect(() => {

@@ -8,7 +8,7 @@ class Sensor extends React.Component {
     this.state = {
       currentSensorValues: [],
       shouldPollSensors: false,
-      currentKeys: []
+      currentKeys: [],
     };
   }
 
@@ -19,14 +19,14 @@ class Sensor extends React.Component {
         const apiSensorURL = `/api/sensors/${this.props.sensor}/booking/${this.props.booking_id}`;
         axios
           .get(apiSensorURL)
-          .then(res => {
+          .then((res) => {
             if (res.data) {
               let newSensorValues = [...res.data];
-              newSensorValues = newSensorValues.map(value => {
+              newSensorValues = newSensorValues.map((value) => {
                 if (value) {
                   // remove __v key
                   delete value["__v"];
-                  Object.keys(value).forEach(key => {
+                  Object.keys(value).forEach((key) => {
                     // remove single and double quote
                     if (typeof value[key] === "string") {
                       value[key] = value[key].replace(/["']/g, "");
@@ -36,17 +36,17 @@ class Sensor extends React.Component {
                 return value;
               });
               this.setState({
-                currentSensorValues: newSensorValues
+                currentSensorValues: newSensorValues,
               });
             }
             // get keys from results
             if (this.state.currentKeys.length === 0) {
               this.setState({
-                currentKeys: Object.keys(res.data[0])
+                currentKeys: Object.keys(res.data[0]),
               });
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.error(err);
           });
       }
@@ -63,12 +63,12 @@ class Sensor extends React.Component {
         const apiSensorURL = `/api/sensors/${this.props.sensor}/current/${this.props.booking_id}`;
         axios
           .get(apiSensorURL)
-          .then(res => {
+          .then((res) => {
             if (res.data) {
               let newSensorValues = [...this.state.currentSensorValues];
               // remove __v key
               delete res.data["__v"];
-              Object.keys(res.data).forEach(key => {
+              Object.keys(res.data).forEach((key) => {
                 // remove single and double quote
                 if (typeof res.data[key] === "string") {
                   res.data[key] = res.data[key].replace(/["']/g, "");
@@ -84,17 +84,17 @@ class Sensor extends React.Component {
                 newSensorValues.push(res.data);
               }
               this.setState({
-                currentSensorValues: newSensorValues
+                currentSensorValues: newSensorValues,
               });
               // get keys of data
               if (this.state.currentKeys.length === 0) {
                 this.setState({
-                  currentKeys: Object.keys(res.data)
+                  currentKeys: Object.keys(res.data),
                 });
               }
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.error(err);
           });
       }
@@ -111,24 +111,29 @@ class Sensor extends React.Component {
     }
   }
   render() {
-    const tableRows = this.state.currentKeys.map(row => {
+    const tableRows = this.state.currentKeys.map((row) => {
       return (
         <th key={row + Math.random()}>
           {row === "booking_id"
             ? "Booking ID"
-            : row === "_id" ? "ID"
-            : row === "other_actor" ? "Other Actor"
-            : row === "normal_impulse" ? "Normal Impulse"
-            : row === "crossed_lane_markings" ? "Crossed Lane Markings"
-            : row === "horizontal_angle" ? "Horizontal Angle"
+            : row === "_id"
+            ? "ID"
+            : row === "other_actor"
+            ? "Other Actor"
+            : row === "normal_impulse"
+            ? "Normal Impulse"
+            : row === "crossed_lane_markings"
+            ? "Crossed Lane Markings"
+            : row === "horizontal_angle"
+            ? "Horizontal Angle"
             : row.charAt(0).toUpperCase() + row.slice(1)}
         </th>
       );
     });
-    const tableResults = this.state.currentSensorValues.map(value => {
+    const tableResults = this.state.currentSensorValues.map((value) => {
       return (
         <tr key={value + Math.random()}>
-          {this.state.currentKeys.map(currentKey => {
+          {this.state.currentKeys.map((currentKey) => {
             return (
               <td key={currentKey + Math.random()}>{value[currentKey]}</td>
             );
@@ -137,7 +142,7 @@ class Sensor extends React.Component {
       );
     });
     return (
-      <Table responsive>
+      <Table responsive striped hover>
         <thead>
           <tr>{tableRows}</tr>
         </thead>

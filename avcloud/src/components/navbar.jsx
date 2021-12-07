@@ -1,28 +1,33 @@
-import React, { Component } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { Container, Form, Button, Row, Col, Tabs, Tab } from "react-bootstrap";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
+import logo from "../images/logo.png";
 
-export class Navbar extends Component {
-  constructor(props) {
-    super(props);
+const Navbar = ({ signOut }) => {
+  return (
+    <Row className="text-center mb-5">
+      <Col>
+        <Link to="/">
+          <Image src={logo} className="mb-3 logo" />
+        </Link>
+        <h5>Hello {localStorage.getItem("token")}</h5>
+        <Link to="/usermain" className="navigation-link me-5">
+          Book Ride
+        </Link>
+        <Link to="/ridehistory" className="navigation-link me-5">
+          Ride History
+        </Link>
+        <Link to="/profile" className="navigation-link me-5">
+          User Profile
+        </Link>
+        <Link to="/" onClick={signOut} className="navigation-link">
+          Sign Out
+        </Link>
+      </Col>
+    </Row>
+  );
+};
 
-  }
-
-  render() {
-    return (
-        <nav className="Navbar">
-            <h1><Link to='/usermain' className="nav-icon">AVRental</Link></h1>
-        
-        <ul className={this.props.isSensorView ? 'nav-menu-sensor-view' : 'nav-menu'}>
-            
-            <li><Link to='/usermain' className="nav-i">Rent Car</Link></li>
-            <li><Link to='/ridehistory' className="nav-i">Ride History</Link></li>
-            <li><Link to='/profile' className="nav-i">User Profile</Link></li>
-            <li><Link to='/' className="nav-i">Log Out</Link></li>
-            
-        </ul>
-        
-    </nav>
-    );
-  }
-}
+export default Navbar;
