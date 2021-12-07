@@ -60,9 +60,10 @@ User.createUser = async function (userReqData, result) {
 
 // update user
 User.updateUser = async function (username, userReqData, result) {
-    userReqData.password = await bcrypt.hash(userReqData.password, salt);
+   
+    encryptedPass= await bcrypt.hash(userReqData.password, salt);
     db.query('UPDATE users SET password = ?, name = ?, email = ?, address = ?, city = ?, credit_card = ?, is_admin = ? WHERE username=?', 
-    [userReqData.password, userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, userReqData.is_admin, username], 
+    [encryptedPass, userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, userReqData.is_admin, username], 
     (err, res) => {
         if(err){
             console.log('Error while updating user', err);
@@ -73,7 +74,28 @@ User.updateUser = async function (username, userReqData, result) {
             result(null, {status: true, message:"User udated"});
         }
     })
+    
 }
+
+// update w/o password
+User.updateUserNoPw = (username, userReqData, result) => {
+    
+    db.query('UPDATE users SET name = ?, email = ?, address = ?, city = ?, credit_card = ?, is_admin = ? WHERE username=?', 
+    [userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, userReqData.is_admin, username], 
+    (err, res) => {
+        if(err){
+            console.log('Error while updating user', err);
+            result(null, err);
+        }
+        else{
+            console.log("user  updated successfully");
+            result(null, {status: true, message:"User udated"});
+    }
+    })
+    
+}
+
+
 
 
 // Delete user
