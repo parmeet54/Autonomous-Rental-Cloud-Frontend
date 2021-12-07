@@ -11,7 +11,7 @@ var User = function(user){
     this.address = user.address;
     this.city = user.city;
     this.credit_card = user.credit_card;
-    
+    this.is_admin = user.is_admin;
 }
 
 //get all users
@@ -61,8 +61,8 @@ User.createUser = async function (userReqData, result) {
 // update user
 User.updateUser = async function (username, userReqData, result) {
     userReqData.password = await bcrypt.hash(userReqData.password, salt);
-    db.query('UPDATE users SET password = ?, name = ?, email = ?, address = ?, city = ?, credit_card = ? WHERE username=?', 
-    [userReqData.password, userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, username], 
+    db.query('UPDATE users SET password = ?, name = ?, email = ?, address = ?, city = ?, credit_card = ?, is_admin = ? WHERE username=?', 
+    [userReqData.password, userReqData.name , userReqData.email , userReqData.address , userReqData.city , userReqData.credit_card, userReqData.is_admin, username], 
     (err, res) => {
         if(err){
             console.log('Error while updating user', err);
