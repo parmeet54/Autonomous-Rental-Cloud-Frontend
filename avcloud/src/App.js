@@ -124,13 +124,13 @@ const App = () => {
         }
       />
       <Route
-        path="/sensorviewcompleted/:booking_id"
+        path="/sensorviewcompleted/:bookingId"
         element={
           isSignedIn && !isAdmin ? <SensorViewCompleted /> : <Navigate to="/" />
         }
       />
       <Route
-        path="/sensorviewactive/:booking_id"
+        path="/sensorviewactive/:bookingId"
         element={
           isSignedIn && !isAdmin ? <SensorViewActive /> : <Navigate to="/" />
         }

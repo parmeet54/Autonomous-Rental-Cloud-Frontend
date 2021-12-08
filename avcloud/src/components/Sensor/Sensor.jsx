@@ -13,10 +13,10 @@ class Sensor extends React.Component {
   }
 
   getCurrentSensorData = () => {
-    // if ride/booking compelted, get all sensor information
+    // if ride/booking completed, get all sensor information
     if (this.props.completed) {
-      if (this.props.booking_id > 0) {
-        const apiSensorURL = `/api/sensors/${this.props.sensor}/booking/${this.props.booking_id}`;
+      if (this.props.bookingId > 0) {
+        const apiSensorURL = `/api/sensors/${this.props.sensor}/booking/${this.props.bookingId}`;
         axios
           .get(apiSensorURL)
           .then((res) => {
@@ -40,7 +40,7 @@ class Sensor extends React.Component {
               });
             }
             // get keys from results
-            if (this.state.currentKeys.length === 0) {
+            if (this.state.currentKeys.length === 0 && res.data.length > 0) {
               this.setState({
                 currentKeys: Object.keys(res.data[0]),
               });
@@ -59,8 +59,8 @@ class Sensor extends React.Component {
   // for active ride/booking, make continuous requests to track sensors
   getCurrentSensorDataPolling = () => {
     setInterval(() => {
-      if (this.props.booking_id > 0) {
-        const apiSensorURL = `/api/sensors/${this.props.sensor}/current/${this.props.booking_id}`;
+      if (this.props.bookingId > 0) {
+        const apiSensorURL = `/api/sensors/${this.props.sensor}/current/${this.props.bookingId}`;
         axios
           .get(apiSensorURL)
           .then((res) => {
@@ -106,7 +106,7 @@ class Sensor extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.booking_id !== this.props.booking_id) {
+    if (prevProps.bookingId !== this.props.bookingId) {
       this.getCurrentSensorData();
     }
   }

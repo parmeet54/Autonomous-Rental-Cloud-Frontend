@@ -14,6 +14,8 @@ import PlacesAutocomplete, {
 import Map from "./map";
 import { useLoadScript } from "@react-google-maps/api";
 
+const CARLA_URL = "http://carla-1490864021.us-east-2.elb.amazonaws.com";
+
 const UserMain = ({ signOut }) => {
   const [cars, setCars] = useState([]);
   const [carId, setCarId] = useState(0);
@@ -34,8 +36,10 @@ const UserMain = ({ signOut }) => {
     // Get available cars from database
     axios.get("cars").then((response) => {
       const cars = response.data.filter((car) => car.status === "inactive");
-      setCars(cars);
-      setCarId(cars[0].car_id);
+      if (cars.length > 0) {
+        setCars(cars);
+        setCarId(cars[0].car_id);
+      }
     });
   }, []);
 
@@ -77,8 +81,7 @@ const UserMain = ({ signOut }) => {
       })
       .then((response) => {
         // Start CARLA simulation
-        // TODO: Replace with load balancer
-        axios.post("http://ec2-52-15-174-182.us-east-2.compute.amazonaws.com", {
+        axios.post(CARLA_URL, {
           booking_id: bookingId,
           car_id: carId,
           vehicle: cars.find((element) => element.car_id === carId).car_type,
@@ -87,7 +90,7 @@ const UserMain = ({ signOut }) => {
         });
 
         // Change page
-        navigate("/ridehistory");
+        navigate("/sensorviewactive/" + bookingId);
       });
   };
 
@@ -146,6 +149,7 @@ const UserMain = ({ signOut }) => {
                             placeholder: "1 Washington Sq",
                             className: "location-search-input",
                           })}
+                          required
                         />
                         <div className="autocomplete-dropdown-container">
                           {loading && <div>Loading...</div>}
@@ -203,6 +207,7 @@ const UserMain = ({ signOut }) => {
                             placeholder: "200 E Santa Clara st",
                             className: "location-search-input",
                           })}
+                          required
                         />
                         <div className="autocomplete-dropdown-container">
                           {loading && <div>Loading...</div>}
@@ -243,6 +248,8 @@ const UserMain = ({ signOut }) => {
                   <Form.Select
                     name="carId"
                     onChange={(e) => setCarId(parseInt(e.target.value))}
+                    disabled={cars.length === 0}
+                    required
                   >
                     {cars.map((car) => (
                       <option
@@ -252,7 +259,14 @@ const UserMain = ({ signOut }) => {
                     ))}
                   </Form.Select>
                 </Form.Group>
-                <Button type="submit">Book Ride</Button>
+                <Button type="submit" disabled={cars.length === 0}>
+                  Book Ride
+                </Button>
+                {cars.length === 0 && (
+                  <h5 className="mt-3" style={{ color: "red" }}>
+                    All vehicles in use
+                  </h5>
+                )}
               </Form>
             </Col>
             <Col>
